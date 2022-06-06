@@ -1,0 +1,21 @@
+version: '3.1'
+
+services:
+  server:
+    build:
+      context: ./
+      dockerfile: ./dockerfile
+    image: hn-stories
+    ports:
+      - "3000:3000"
+    volumes:
+      - "./:/root/build"
+    command: sbt ~reStart
+  test:
+    build:
+      context: ./
+      dockerfile: ./dockerfile
+    image: hn-stories-test
+    volumes:
+      - "./:/root/build"
+    command: sbt test
