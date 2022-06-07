@@ -3,6 +3,7 @@ package stories.clients
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.{HttpMethods, HttpRequest, StatusCodes}
 import akka.http.scaladsl.unmarshalling.Unmarshal
+import play.twirl.api.HtmlFormat
 import stories._
 import stories.models.{Item, ItemResponse, JsonSupport, Response, TopStoriesResponse}
 import stories.utils.box.{BoxComponent, Metadata}
@@ -41,13 +42,13 @@ class HackerNewsClientImpl extends HackerNewsClientAlgebra with JsonSupport with
 
   implicit class HandleResponse[T](res: Future[Response[T]]) {
 
-    val errorMessage = "We couldn't reach to Hacker News!"
+    val error: HtmlFormat.Appendable = html.error()
 
     def handleResponse: Box[Response[T]] = {
       toBox(res)
-        .failureToMeta(Metadata(StatusCodes.ServiceUnavailable, errorMessage))
+        .failureToMeta(Metadata(StatusCodes.ServiceUnavailable, error))
         .ensureWith(_.status == StatusCodes.OK)(_ =>
-          Metadata(StatusCodes.ServiceUnavailable, errorMessage)
+          Metadata(StatusCodes.ServiceUnavailable, error)
         )
     }
 

@@ -1,0 +1,43 @@
+@(viewModel: List[stories.models.Story])
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>TopStories</title>
+    <style>
+        table, td, th {
+            border: 1px dashed black;
+            border-collapse: collapse;
+            text-align: center;
+            padding: 1rem;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+<table>
+    <thead>
+        <tr>
+            <th>Story</th>
+            @for(i <- 1 to 10) {
+                <th>@i-th Commenter</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @for(story <- viewModel) {
+            <tr>
+                <td>@{story.title}</td>
+                @for(commenter <- story.tenTopCommenters) {
+                    <td>@{commenter.by} (@{commenter.commentsCount} for story - @{commenter.totalCommentsCount} total)</td>
+                }
+                @for(i <- story.tenTopCommenters.length + 1 to 10) {
+                    <td>-</td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+</body>
+</html>

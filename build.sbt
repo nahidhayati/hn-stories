@@ -6,11 +6,12 @@ val akkaHttpVersion = "10.2.9"
 val akkaVersion = "2.6.19"
 val configVersion = "1.4.2"
 val macWireVersion = "2.5.7"
-val scalaTestVersion = "3.2.12"
+val scalaTestVersion = "3.2.2"
 val scalaMockVersion = "5.2.0"
 val catsVersion = "2.7.0"
 
 lazy val root = (project in file("."))
+  .enablePlugins(SbtTwirl)
   .settings(
     name := "hn-stories",
     libraryDependencies ++= Seq(
