@@ -5,6 +5,7 @@ import cats.implicits.catsStdInstancesForFuture
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 import stories._
+import scala.annotation.tailrec
 
 trait BoxComponent {
 
@@ -31,7 +32,7 @@ trait BoxComponent {
     })
   }
 
-  implicit class BoxExtensions[T](box: Box[T]) {
+  implicit class BoxExtension[T](box: Box[T]) {
 
     def ensureWith(f: T => Boolean)(fault: T => Metadata): Box[T] = {
       box.flatMap[Metadata, T] {
@@ -45,6 +46,19 @@ trait BoxComponent {
         case Success(value) => Success(value)
         case Failure(_) => Success(Fault(metadata))
       })
+    }
+
+  }
+
+  implicit class ListBoxExtension[T](value: List[Box[T]]) {
+
+    def toBoxList: Box[List[T]] = {
+      @tailrec def loop(acc: Box[List[T]] = toBox(Nil), value: List[Box[T]]): Box[List[T]] =
+        value match {
+          case Nil => acc
+          case head :: tail => loop(acc.flatMap(l => head.map(_ :: l)), tail)
+        }
+      loop(toBox(Nil), value)
     }
 
   }

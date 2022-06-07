@@ -1,4 +1,4 @@
-package stories.services
+package stories.clients
 
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.{HttpMethods, HttpRequest, StatusCodes}
@@ -8,14 +8,14 @@ import stories.models.{Item, ItemResponse, JsonSupport, Response, TopStoriesResp
 import stories.utils.box.{BoxComponent, Metadata}
 import scala.concurrent.Future
 
-class HackerNewsServiceImpl extends HackerNewsServiceAlgebra with JsonSupport with BoxComponent {
+class HackerNewsClientImpl extends HackerNewsClientAlgebra with JsonSupport with BoxComponent {
 
   lazy val basePath: String = config.getString("services.hackerNews.host")
   lazy val itemsPath: String = basePath + config.getString("services.hackerNews.items")
   lazy val topStoriesPath: String = basePath + config.getString("services.hackerNews.topStories")
   lazy val topStoriesLimit: Int = config.getInt("topStoriesLimit")
 
-  def getTopStories: Box[List[Int]] = {
+  def getTopStoryIds: Box[List[Int]] = {
     val request = HttpRequest(method = HttpMethods.GET, uri = topStoriesPath)
 
     val response = for {
@@ -39,7 +39,7 @@ class HackerNewsServiceImpl extends HackerNewsServiceAlgebra with JsonSupport wi
     response.handleResponse.map(_.content)
   }
 
-  implicit class handleResponse[T](res: Future[Response[T]]) {
+  implicit class HandleResponse[T](res: Future[Response[T]]) {
 
     val errorMessage = "We couldn't reach to Hacker News!"
 

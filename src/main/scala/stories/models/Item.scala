@@ -6,4 +6,14 @@ case class Item(
   `type`: String,
   kids: Option[List[Int]] = None,
   title: Option[String] = None
-)
+) {
+
+  def toStory: Story = {
+    Story(id = id, title = title.getOrElse("Story"), Nil)
+  }
+
+  def toStory(commenters: List[Commenter]): Story = {
+    Story(id = id, title = title.getOrElse("Story"), commenters)
+  }
+
+}

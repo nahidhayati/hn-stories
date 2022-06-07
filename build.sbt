@@ -7,6 +7,7 @@ val akkaVersion = "2.6.19"
 val configVersion = "1.4.2"
 val macWireVersion = "2.5.7"
 val scalaTestVersion = "3.2.12"
+val scalaMockVersion = "5.2.0"
 val catsVersion = "2.7.0"
 
 lazy val root = (project in file("."))
@@ -21,6 +22,7 @@ lazy val root = (project in file("."))
       "com.typesafe.akka" %% "akka-stream-testkit" % akkaVersion,
       "com.typesafe.akka" %% "akka-http-testkit" % akkaHttpVersion,
       "org.scalatest" %% "scalatest" % scalaTestVersion,
+      "org.scalamock" %% "scalamock" % scalaMockVersion % Test,
       "org.typelevel" %% "cats-core" % catsVersion
     )
   )
