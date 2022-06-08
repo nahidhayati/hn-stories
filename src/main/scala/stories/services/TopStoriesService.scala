@@ -8,32 +8,39 @@ import stories.utils.box.BoxComponent
 
 class TopStoriesService(client: ClientModule) extends BoxComponent{
 
+  /** Getting all top stories with their commenters */
   def getTopStories: Box[List[Story]] = {
     client.hackerNewsClient.getTopStoryIds
       .flatMap(getStories)
-      .map(updateCommenters)
+      .flatMap(_.map(addCommentsToStory).toBoxList)
+      .map(calcCommentersTotalComments)
   }
 
-  private def getStories(storyIds: List[Int]): Box[List[Story]] = {
-    storyIds.map {
-      storyId =>
-        client.hackerNewsClient.getItem(storyId).flatMap(getComments)
-    }.toBoxList
+  /** Getting all story items for the given ids */
+  private def getStories(storyIds: List[Int]): Box[List[Item]] = {
+    storyIds.map(client.hackerNewsClient.getItem).toBoxList
   }
 
-  private def getComments(story: Item): Box[Story] = {
-    story.kids match {
-      case None =>
-        toBox(story.toStory)
-      case _ =>
-        story.kids.get
-          .map(client.hackerNewsClient.getItem).toBoxList
-          .map(getCommenters)
-          .map(story.toStory)
+  /** Getting all comment items and their replies recursively for the given ids */
+  private def getComments(commentIds: List[Int]): Box[List[Item]] = {
+    commentIds.map(client.hackerNewsClient.getItem).toBoxList.flatMap {
+      items =>
+        val kids = items.flatMap(_.kids.getOrElse(Nil))
+        kids match {
+          case Nil => toBox(items)
+          case _ => getComments(kids).map(_ ++ items)
+        }
     }
   }
 
-  private def getCommenters(comments: List[Item]): List[Commenter] = {
+  /** Adding comments to a story */
+  private def addCommentsToStory(storyItem: Item): Box[Story]  = {
+    getComments(storyItem.kids.getOrElse(Nil))
+      .map(comments => storyItem.toStory(getStoryCommenters(comments)))
+    }
+
+  /** Converting comments to commenters for a story*/
+  private def getStoryCommenters(comments: List[Item]): List[Commenter] = {
     comments
       .filter(_.by.isDefined)
       .groupBy(_.by.get).map {
@@ -42,7 +49,8 @@ class TopStoriesService(client: ClientModule) extends BoxComponent{
     }.toList
   }
 
-  private def updateCommenters(stories: List[Story]): List[Story] = {
+  /** Calculating the total comments count of all user */
+  private def calcCommentersTotalComments(stories: List[Story]): List[Story] = {
     stories.map {
       story =>
         story.copy(commenters = story.commenters.map(_.updateTotalCommentsCount(stories)))

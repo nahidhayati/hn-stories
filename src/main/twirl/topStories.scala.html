@@ -1,4 +1,4 @@
-@(viewModel: List[stories.models.Story])
+@(viewModel: stories.models.ViewModel)
 
 <!DOCTYPE html>
 <html lang="en">
@@ -9,7 +9,7 @@
         table, td, th {
             border: 1px dashed black;
             border-collapse: collapse;
-            text-align: center;
+            text-align: left;
             padding: 1rem;
             white-space: nowrap;
         }
@@ -19,20 +19,21 @@
 <table>
     <thead>
         <tr>
-            <th>Story</th>
-            @for(i <- 1 to 10) {
-                <th>@i-th Commenter</th>
+            @for(header <- viewModel.headers) {
+                <th>@header</th>
             }
         </tr>
     </thead>
     <tbody>
-        @for(story <- viewModel) {
+        @for(story <- viewModel.stories) {
             <tr>
-                <td>@{story.title}</td>
-                @for(commenter <- story.tenTopCommenters) {
+                <td>
+                    <a href="https://news.ycombinator.com/item?id=@{story.id}" target="_blank" rel="noopener noreferrer">@{story.title}</a>
+                </td>
+                @for(commenter <- story.topCommenters) {
                     <td>@{commenter.by} (@{commenter.commentsCount} for story - @{commenter.totalCommentsCount} total)</td>
                 }
-                @for(i <- story.tenTopCommenters.length + 1 to 10) {
+                @for(i <- story.topCommenters.length + 1 to viewModel.topCommentersLimit) {
                     <td>-</td>
                 }
             </tr>

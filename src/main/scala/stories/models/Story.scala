@@ -10,7 +10,7 @@ case class Story(
 
   lazy val topCommentersLimit: Int = config.getInt("topCommentersLimit")
 
-  def tenTopCommenters: List[Commenter] = {
+  def topCommenters: List[Commenter] = {
     commenters.sortWith(_.commentsCount > _.commentsCount).take(topCommentersLimit)
   }
 
